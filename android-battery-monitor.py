@@ -48,6 +48,6 @@ while (True):
 
 	# print output to stdout as json
 	f = open(outfile, 'a')
-	f.write('[' + ','.join([str(logged_time), str(voltage), str(current)]) + ']'+ '\n')
+	f.write('[' + ','.join([str(logged_time), str(voltage), str(current), str(battery_level)]) + ']'+ '\n')
 
 f.close()
