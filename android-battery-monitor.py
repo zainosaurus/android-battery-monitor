@@ -6,6 +6,7 @@ import sys
 import json
 import time
 import threading
+from datetime import datetime
 import matplotlib.pyplot as plt
 
 DELAY = 2
@@ -32,13 +33,10 @@ while (True):
 	battery_stats = subprocess.check_output(['adb', '-s', sys.argv[1], 'shell', 'dumpsys', 'battery']).decode('utf-8')
 	
 	# Find info to write to file (relevant batter stats)
+	timestamp = datetime.now().time() 
 	voltage = float(re.search(VOLTAGE_STR, battery_stats, re.MULTILINE).group(1))
 	current = float(re.search(CURRENT_STR, battery_stats, re.MULTILINE).group(1))
 	battery_level = float(re.search(BATTERY_LEVEL, battery_stats, re.MULTILINE).group(1))
-
-	# Break if desired battery level is reached
-	if battery_level >= battery_setpoint:
-		break
 
 	# Ensure loop runs at specified intervals
 	elapsed_time = time.time() - start_time
@@ -48,6 +46,10 @@ while (True):
 
 	# print output to stdout as json
 	f = open(outfile, 'a')
-	f.write('[' + ','.join([str(logged_time), str(voltage), str(current), str(battery_level)]) + ']'+ '\n')
+	f.write('[' + ','.join([str(logged_time), str(voltage), str(current), str(battery_level), '"' + str(timestamp) + '"', str(time.time())]) + ']'+ '\n')
+
+	# Break if desired battery level is reached
+	if battery_level >= battery_setpoint:
+		break
 
 f.close()
