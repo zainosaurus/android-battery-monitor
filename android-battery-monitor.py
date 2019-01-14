@@ -18,26 +18,21 @@ BATTERY_LEVEL = r'^ *level: (\d+)'
 # Command line args
 parser = argparse.ArgumentParser()
 parser.add_argument('--ip')
-parser.add_argument('-f', '--file', nargs=1)
+parser.add_argument('-f', '--file')
 parser.add_argument('-b', '--battery-target', type=int, required=False, default=100)
 args = parser.parse_args()
 
 # File to output values
-if len(sys.argv) > 3:
-	outfile = sys.argv[3]
-else:
-	outfile = 'datafile'
+outfile = args.file
 
 # Determining What battery percent to stop logging
-battery_setpoint = 100
-if len(sys.argv) > 2 :
-	battery_setpoint = int(sys.argv[2])
+battery_setpoint = args.battery_target
 
 logged_time = 0
 start_time = time.time()
 while (True):
 	# Get battery info by using a system call
-	battery_stats = subprocess.check_output(['adb', '-s', sys.argv[1], 'shell', 'dumpsys', 'battery']).decode('utf-8')
+	battery_stats = subprocess.check_output(['adb', '-s', args.ip, 'shell', 'dumpsys', 'battery']).decode('utf-8')
 	
 	# Find info to write to file (relevant battery stats)
 	timestamp = datetime.now().time() 
