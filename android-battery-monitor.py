@@ -8,12 +8,19 @@ import time
 import threading
 from datetime import datetime
 import matplotlib.pyplot as plt
+import argparse
 
 DELAY = 2
 VOLTAGE_STR = r'^ *voltage: (\d+)'
 CURRENT_STR = r'^ *current now: (-?\d+)'
 BATTERY_LEVEL = r'^ *level: (\d+)'
 
+# Command line args
+parser = argparse.ArgumentParser()
+parser.add_argument('--ip')
+parser.add_argument('-f', '--file', nargs=1)
+parser.add_argument('-b', '--battery-target', type=int, required=False, default=100)
+args = parser.parse_args()
 
 # File to output values
 if len(sys.argv) > 3:
