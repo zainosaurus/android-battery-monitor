@@ -39,7 +39,7 @@ while (True):
 	# Get battery info by using a system call
 	battery_stats = subprocess.check_output(['adb', '-s', sys.argv[1], 'shell', 'dumpsys', 'battery']).decode('utf-8')
 	
-	# Find info to write to file (relevant batter stats)
+	# Find info to write to file (relevant battery stats)
 	timestamp = datetime.now().time() 
 	voltage = float(re.search(VOLTAGE_STR, battery_stats, re.MULTILINE).group(1))
 	current = float(re.search(CURRENT_STR, battery_stats, re.MULTILINE).group(1))
