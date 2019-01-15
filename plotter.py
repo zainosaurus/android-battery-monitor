@@ -20,6 +20,23 @@ currents = []
 level = []
 timestamps = []
 
+
+# Returns times and levels at the point when the batter level changes (makes for a smoother graph)
+def unique_battery_levels(time, level):
+    unique_times = [time[0]]
+    unique_levels = [level[0]]
+
+    last_level = level[0]
+    for i in range(len(level)):
+        if level[i] != last_level:
+            unique_times.append(time[i])
+            unique_levels.append(level[i])
+            last_level = level[i]
+
+    return (unique_times, unique_levels)
+
+
+
 def plot(x, y, x_is_date = False):
     plt.gcf().clear()
     if x_is_date:
@@ -47,7 +64,8 @@ def plot_all(freeze = False):
     plt.subplot(2, 2, 3)
     plt.ylabel('Battery Level (%)')
     plt.xlabel('Time')
-    plt.plot_date(timestamps, level, 'r')
+    x, y = unique_battery_levels(timestamps, level)
+    plt.plot_date(x, y, 'r')
 
     plt.pause(0.0001)
     plt.show(block=freeze)
@@ -70,14 +88,6 @@ for line in file:
 if args.single_plot == None:
     plot_all(not args.continuous)
 else:
-    y_val = args.single_plot[0]
-    if y_val == 'voltage':
-        ydata = voltages
-    elif y_val == 'current':
-        ydata = currents
-    elif y_val == 'level':
-        ydata = level
-
     x_val = args.single_plot[1]
     date = False
     if x_val == 'elapsed':
@@ -85,6 +95,15 @@ else:
     elif x_val == 'time':
         xdata = timestamps
         date = True
+
+    y_val = args.single_plot[0]
+    if y_val == 'voltage':
+        ydata = voltages
+    elif y_val == 'current':
+        ydata = currents
+    elif y_val == 'level':
+        xdata, ydata = unique_battery_levels(xdata, level)
+
     plot(xdata, ydata, date)
 
 
