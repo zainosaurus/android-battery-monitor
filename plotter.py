@@ -7,6 +7,7 @@ import sys
 import json
 import time
 import argparse
+import numpy
 
 parser = argparse.ArgumentParser()
 parser.add_argument('-c', '--continuous', action='store_true', required=False)
@@ -36,15 +37,15 @@ def unique_battery_levels(time, level):
     return (unique_times, unique_levels)
 
 
-
 def plot(x, y, x_is_date = False):
     plt.gcf().clear()
-    if x_is_date:
-        plt.plot_date(x, y, 'g')
-    else:
-        plt.plot(x, y, 'g')
+    plt.plot(x, y, 'g')
     plt.xlabel('Time')
     plt.ylabel('Value')
+    if x_is_date:
+        plt.gcf().autofmt_xdate()
+        fmt = matplotlib.dates.DateFormatter('%H:%M')
+        plt.gca().xaxis.set_major_formatter(fmt)
     plt.pause(0.0001)
     plt.show(block = True)
 
@@ -104,6 +105,7 @@ else:
     elif y_val == 'level':
         xdata, ydata = unique_battery_levels(xdata, level)
 
+    print(numpy.polyfit(xdata, ydata, 1))
     plot(xdata, ydata, date)
 
 
