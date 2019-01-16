@@ -13,6 +13,9 @@ parser = argparse.ArgumentParser()
 parser.add_argument('-c', '--continuous', action='store_true', required=False)
 parser.add_argument('-b', '--best-fit-enabled', action='store_true', required=False)
 parser.add_argument('-s', '--single-plot', required=False, nargs=2)
+parser.add_argument('-t', '--title', required=False, default='')
+parser.add_argument('-m', '--markers', required=False, action='store_true')
+parser.add_argument('-i', '--interval', required=False, type=int, default=10)
 parser.add_argument('file')
 args = parser.parse_args()
 
@@ -38,14 +41,22 @@ def unique_battery_levels(time, level):
     return (unique_times, unique_levels)
 
 
-def plot(x, y, x_is_date = False, best_fit = False):
+def plot(x, y, ylabel, x_is_date = False, best_fit = False):
     plt.gcf().clear()
-    plt.plot(x, y, 'g', linewidth = 2)
+    if args.markers:
+        style = 'bo-'
+    else:
+        style = 'b'
+    plt.plot(x, y, style, markersize = 4,linewidth = 1)
     plt.xlabel('Time')
-    plt.ylabel('Battery Level (%)')
+    plt.ylabel(ylabel)
+    plt.grid(True, linestyle = 'dotted', linewidth = '1')
+    plt.title(args.title)
+
     if x_is_date:
         plt.gcf().autofmt_xdate()
         fmt = matplotlib.dates.DateFormatter('%H:%M')
+        plt.gca().xaxis.set_major_locator(matplotlib.dates.MinuteLocator(interval=args.interval))
         plt.gca().xaxis.set_major_formatter(fmt)
     if best_fit:
         if x_is_date:
@@ -111,14 +122,18 @@ else:
         date = True
 
     y_val = args.single_plot[0]
+    y_label = 'Unknown'
     if y_val == 'voltage':
         ydata = voltages
+        y_label = 'Voltage (mV)'
     elif y_val == 'current':
         ydata = currents
+        y_label = 'Current (mA)'
     elif y_val == 'level':
         xdata, ydata = unique_battery_levels(xdata, level)
+        y_label = 'Battery Level (%)'
 
-    plot(xdata, ydata, date, args.best_fit_enabled)
+    plot(xdata, ydata, y_label, date, args.best_fit_enabled)
 
 
 if args.continuous:
