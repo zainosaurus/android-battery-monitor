@@ -11,6 +11,7 @@ import numpy
 
 parser = argparse.ArgumentParser()
 parser.add_argument('-c', '--continuous', action='store_true', required=False)
+parser.add_argument('-b', '--best-fit-enabled', action='store_true', required=False)
 parser.add_argument('-s', '--single-plot', required=False, nargs=2)
 parser.add_argument('file')
 args = parser.parse_args()
@@ -37,17 +38,29 @@ def unique_battery_levels(time, level):
     return (unique_times, unique_levels)
 
 
-def plot(x, y, x_is_date = False):
+def plot(x, y, x_is_date = False, best_fit = False):
     plt.gcf().clear()
-    plt.plot(x, y, 'g')
+    plt.plot(x, y, 'g', linewidth = 2)
     plt.xlabel('Time')
-    plt.ylabel('Value')
+    plt.ylabel('Battery Level (%)')
     if x_is_date:
         plt.gcf().autofmt_xdate()
         fmt = matplotlib.dates.DateFormatter('%H:%M')
         plt.gca().xaxis.set_major_formatter(fmt)
+    if best_fit:
+        if x_is_date:
+            start_time = x[0]
+            elapsed_sec = list(map(lambda el: (el - start_time).seconds, x))
+        else:
+            elapsed_sec = x
+        coeffs = numpy.polyfit(elapsed_sec, y, 1)
+        print('y =', coeffs[0], 'x +', coeffs[1])
+        y_vals = list(map(lambda el: el * coeffs[0] + coeffs[1], elapsed_sec))
+        plt.plot(x, y_vals, 'r', linewidth = 1)
+
     plt.pause(0.0001)
     plt.show(block = True)
+
 
 def plot_all(freeze = False):
     plt.gcf().clear()
@@ -105,8 +118,7 @@ else:
     elif y_val == 'level':
         xdata, ydata = unique_battery_levels(xdata, level)
 
-    print(numpy.polyfit(xdata, ydata, 1))
-    plot(xdata, ydata, date)
+    plot(xdata, ydata, date, args.best_fit_enabled)
 
 
 if args.continuous:
