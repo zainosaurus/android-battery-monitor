@@ -19,7 +19,7 @@ BATTERY_LEVEL = r'^ *level: (\d+)'
 parser = argparse.ArgumentParser()
 parser.add_argument('--ip')
 parser.add_argument('-f', '--file')
-parser.add_argument('-b', '--battery-target', type=int, required=False, default=100)
+parser.add_argument('-b', '--battery-target', type=int, required=False, default=101)
 args = parser.parse_args()
 
 # File to output values

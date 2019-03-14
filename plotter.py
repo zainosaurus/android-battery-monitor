@@ -22,6 +22,7 @@ args = parser.parse_args()
 elapsed_time = []
 voltages = []
 currents = []
+powers = []
 level = []
 timestamps = []
 
@@ -40,7 +41,7 @@ def unique_battery_levels(time, level):
 
     return (unique_times, unique_levels)
 
-
+# Plots one graph (used if single plot is enabled)
 def plot(x, y, ylabel, x_is_date = False, best_fit = False):
     plt.gcf().clear()
     if args.markers:
@@ -72,7 +73,7 @@ def plot(x, y, ylabel, x_is_date = False, best_fit = False):
     plt.pause(0.0001)
     plt.show(block = True)
 
-
+# Plots 3 graphs in a grid
 def plot_all(freeze = False):
     plt.gcf().clear()
 
@@ -82,7 +83,7 @@ def plot_all(freeze = False):
     plt.plot_date(timestamps, currents, 'g')
 
     plt.subplot(2, 2, 2)
-    plt.ylabel('Voltage (mA)')
+    plt.ylabel('Voltage (mV)')
     plt.xlabel('Time')
     plt.plot_date(timestamps, voltages, 'b')
 
@@ -92,15 +93,22 @@ def plot_all(freeze = False):
     x, y = unique_battery_levels(timestamps, level)
     plt.plot_date(x, y, 'r')
 
+    plt.subplot(2, 2, 4)
+    plt.ylabel('Power (mW)')
+    plt.xlabel('Time')
+    plt.plot_date(timestamps, powers, 'k')
+
     plt.pause(0.0001)
     plt.show(block=freeze)
 
+# Given a sring (from the input file)
 def add_datapoint(line):
     data = json.loads(line)
     elapsed_time.append(data[0])
     voltages.append(data[1])
     currents.append(data[2])
     level.append(data[3])
+    powers.append(data[1] * abs(data[2]) / 1000.0)  # Power consumption in mW
     timestamps.append(datetime.strptime(data[4].strip('"'), '%H:%M:%S.%f'))
 
 
@@ -129,6 +137,9 @@ else:
     elif y_val == 'current':
         ydata = currents
         y_label = 'Current (mA)'
+    elif y_val == 'power':
+        ydata = powers
+        y_label = 'Power (mW)'
     elif y_val == 'level':
         xdata, ydata = unique_battery_levels(xdata, level)
         y_label = 'Battery Level (%)'
